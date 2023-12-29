@@ -1,241 +1,426 @@
 {
   "openapi": "3.1.0",
-  "info": {
-    "version": "1",
-    "title": "Solibri Cloud Checking",
-    "description": "Checking Service",
-    "contact": {
-      "name": "Solibri Support",
-      "url": "help.solibri.com",
-      "email": "support@solibri.com"
-    }
-  },
   "servers": [
     {
-      "url": "https://{environment}.solibri.com/api/v1",
-      "description": "Solibri Cloud Checks API in production environment",
-      "variables": {
-        "environment": {
-          "default": "checks",
-          "enum": [
-            "checks",
-            "checks-dev",
-            "checks-staging"
-          ]
-        }
-      }
-    },
-    {
-      "url": "http://localhost:3333",
-      "description": "Solibri Cloud Checking API in local development"
+      "url": "https://inside-api-beta.solibri.com/",
+      "description": "Beta environment (will change to checking-api.solibri.com)"
     }
   ],
-  "paths": {
-    "/v1/check-jobs": {
-      "post": {
-        "tags": [
-          "Rule Checking"
-        ],
-        "summary": "Create Check Job",
-        "description": "To create a Check Job, start with providing one or many\nCSET files to this endpoint.\nIn all successfull cases the response has the ID for the job.\nThe client is then responsible on polling the status of\nthe job and requesting for the result from `getCheckJobStatus` endpoint.\n",
-        "operationId": "createCheckJob",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "description": "Definition of the check to be run",
-                "properties": {
-                  "csets": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/CsetFileBase64"
-                    }
-                  },
-                  "bcfVersion": {
-                    "enum": [
-                      "3.0",
-                      "2.0",
-                      "2.1",
-                      "1.0"
-                    ]
-                  },
-                  "ifcFiles": {
-                    "type": "array",
-                    "description": "List of IFC Files. These should be publicly available, for example short living signed URLs to S3.",
-                    "items": {
-                      "$ref": "#/components/schemas/IfcUrl"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "The check is submitted.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "description": "The Id of the check job"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid Request"
-          },
-          "401": {
-            "$ref": "#/components/responses/401-Unauthorized"
-          }
-        },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "servers": [
-          {
-            "url": "https://{environment}.solibri.com/api/v1",
-            "description": "Solibri Cloud Checks API in production environment",
-            "variables": {
-              "environment": {
-                "default": "checking-api",
-                "enum": [
-                  "checking-api",
-                  "checking-api-dev",
-                  "checking-api-staging"
-                ]
-              }
-            }
-          },
-          {
-            "url": "http://localhost:3333",
-            "description": "Solibri Cloud Checking API in local development"
-          }
-        ]
+  "info": {
+    "description": "Model Checking Service",
+    "version": "1",
+    "title": "Solibri Cloud Checking",
+    "contact": {
+      "email": "dev-support@solibri.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Checks"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "api-key-token": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "apiKey"
       }
     },
-    "/v1/check-jobs/{checkJobId}": {
-      "get": {
-        "tags": [
-          "Rule Checking"
+    "schemas": {
+      "ResultTypeEnum": {
+        "title": "ResultTypeEnum",
+        "x-stoplight": {
+          "id": "xk8ansynf53lv"
+        },
+        "type": "string",
+        "enum": [
+          "BCF1_0",
+          "BCF2_0",
+          "BCF2_1",
+          "BCF3_0"
         ],
-        "summary": "Get Check",
-        "description": "Get check by id.",
-        "operationId": "getCheckStatus",
-        "parameters": [
+        "default": "BCF2_1"
+      },
+      "ResultLangEnum": {
+        "title": "ResultLangEnum",
+        "x-stoplight": {
+          "id": "ub1h41le4h5td"
+        },
+        "type": "string",
+        "enum": [
+          "en",
+          "de",
+          "fi",
+          "fr",
+          "ja"
+        ],
+        "default": "en"
+      },
+      "CreateJobModel": {
+        "title": "CreateJobModel",
+        "x-stoplight": {
+          "id": "gxtfwmx6c2i43"
+        },
+        "type": "object",
+        "examples": [
           {
-            "$ref": "#/components/parameters/CheckJobIdParameter"
+            "cset": [
+              "base64-encode-cset-file"
+            ],
+            "ifcUrl": "http://example.com",
+            "resultType": "BCF2_1",
+            "resultLang": "en"
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Get rule checking job.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CheckJobOutputModel"
-                }
-              }
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {}
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/401-Unauthorized"
           }
         },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "servers": [
-          {
-            "url": "https://{environment}.solibri.com/api/v1",
-            "description": "Solibri Cloud Checks API in production environment",
-            "variables": {
-              "environment": {
-                "default": "checking-api",
-                "enum": [
-                  "checking-api",
-                  "checking-api-dev",
-                  "checking-api-staging"
-                ]
+        "properties": {
+          "csets": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "ifcFiles": {
+            "type": "object",
+            "format": "uri",
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "discipline": {
+                "$ref": "#/components/schemas/DisciplineEnum"
               }
             }
           },
+          "resultType": {
+            "$ref": "#/components/schemas/ResultTypeEnum"
+          },
+          "resultLang": {
+            "$ref": "#/components/schemas/ResultLangEnum"
+          },
+          "webhookUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "This field is mandatory for now, but it will be reviewed later."
+          }
+        },
+        "required": [
+          "csets",
+          "ifcFiles",
+          "webhookUrl"
+        ]
+      },
+      "CreateJobResponseModel": {
+        "title": "CreateJobResponseModel",
+        "x-stoplight": {
+          "id": "syqtlq8v7268e"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "examples": [
           {
-            "url": "http://localhost:3333",
-            "description": "Solibri Cloud Checking API in local development"
+            "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+            "message": "job created"
           }
         ]
       },
-      "delete": {
-        "tags": [
-          "Rule Checking"
-        ],
-        "summary": "Stop Check",
-        "description": "Stop a running checking job",
-        "operationId": "stopCheckJob",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/CheckJobIdParameter"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
+      "JobModel": {
+        "title": "JobModel",
+        "x-stoplight": {
+          "id": "t6un8fq3e8fc5"
+        },
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
           },
-          "404": {
-            "description": "Not Found"
+          "status": {
+            "$ref": "#/components/schemas/JobStatusEnum"
+          },
+          "resultType": {
+            "$ref": "#/components/schemas/ResultTypeEnum"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dataReceivedTime": {
+            "type": "string",
+            "format": "date-time"
           }
         },
-        "security": [
+        "examples": [
           {
-            "ApiKeyAuth": []
+            "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+            "status": "SUBMITTED",
+            "resultType": "BCF2_1",
+            "createdAt": "2019-08-24T14:15:22Z",
+            "updatedAt": "2019-08-24T14:15:22Z",
+            "dataReceivedTime": "2019-08-24T14:15:22Z"
           }
-        ],
-        "servers": [
-          {
-            "url": "https://{environment}.solibri.com/api/v1",
-            "description": "Solibri Cloud Checks API in production environment",
-            "variables": {
-              "environment": {
-                "default": "checking-api",
-                "enum": [
-                  "checking-api",
-                  "checking-api-dev",
-                  "checking-api-staging"
-                ]
+        ]
+      },
+      "JobStatusEnum": {
+        "title": "JobStatusEnum",
+        "x-stoplight": {
+          "id": "o1bd86taov3al"
+        },
+        "type": "string",
+        "enum": [
+          "STARTED",
+          "DATARECEIVED",
+          "PROCESSING",
+          "FINISHED",
+          "ABORTED",
+          "ERROR"
+        ]
+      },
+      "DisciplineEnum": {
+        "title": "DisciplineEnum",
+        "x-stoplight": {
+          "id": "dz8iqo9j9n7kz"
+        },
+        "type": "string",
+        "enum": [
+          "Architecture",
+          "AC",
+          "BuildingServices",
+          "Electrical",
+          "Heat",
+          "StructuralElements",
+          "Ventilation",
+          "Plumbing",
+          "Sprinkler",
+          "Inventory",
+          "FacilityManagement",
+          "Landscape",
+          "PrefabConcrete",
+          "SteelStructure",
+          "SiteOperations",
+          "Cooling",
+          "SpecialPiping",
+          "Process",
+          "HVAC"
+        ]
+      },
+      "BadRequestErrorMessage": {
+        "title": "BadRequestErrorMessage",
+        "x-stoplight": {
+          "id": "ttel8aishq7si"
+        },
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "errorCode": {
+                  "type": "string"
+                }
               }
             }
-          },
+          }
+        },
+        "examples": [
           {
-            "url": "http://localhost:3333",
-            "description": "Solibri Cloud Checking API in local development"
+            "message": "invalid input for create job",
+            "errorCode": "invalid_create_job_input",
+            "errors": [
+              {
+                "field": "ifcFiles",
+                "message": "empty ifc files input",
+                "errorCode": "invalid_ifc_files_input"
+              }
+            ]
+          }
+        ],
+        "description": "JSON error meessagge for bad requests. It contains general message and general error code as well as list of errors for missing fields with their own error message and error code. You will get all missing fields or invalid input fields at once in the errors list."
+      }
+    },
+    "requestBodies": {
+      "CreateJobBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateJobModel"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "CreateJobResponse": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CreateJobResponseModel"
+            },
+            "examples": {
+              "Example 1": {
+                "value": {
+                  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+                  "message": "job started"
+                }
+              }
+            }
+          }
+        }
+      },
+      "UnAuthorizedResponse": {
+        "description": "Example response",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "headers": {}
+      },
+      "CreateJobBadRequestResponse": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BadRequestErrorMessage"
+            }
+          }
+        }
+      },
+      "GetJobResponse": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/JobModel"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/check/jobs": {
+      "post": {
+        "summary": "Create Check Job",
+        "description": "Create a check job",
+        "operationId": "createCheckJob",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/CreateJobResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/CreateJobBadRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnAuthorizedResponse"
+          }
+        },
+        "tags": [
+          "Checks"
+        ],
+        "security": [
+          {
+            "api-key-token": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/CreateJobBody"
+        }
+      },
+      "parameters": []
+    },
+    "/api/v1/check/jobs/{jobId}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "jobId",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Get Job",
+        "tags": [
+          "Checks"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetJobResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnAuthorizedResponse"
+          }
+        },
+        "operationId": "get-api-v1-check-jobs-job_id",
+        "description": "Get Job endpoint, can be used to see all information about a job including job status.",
+        "security": [
+          {
+            "api-key-token": []
           }
         ]
       }
     },
-    "/v1/check-jobs/{checkJobId}/result": {
+    "/api/v1/check/jobs/{jobId}/result": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "jobId",
+          "in": "path",
+          "required": true
+        }
+      ],
       "get": {
+        "summary": "GET job result",
         "tags": [
-          "Rule Checking"
-        ],
-        "summary": "Get Check Job Result",
-        "description": "Get the result of a Check Job. The version of BCF is defined when starting a check.",
-        "operationId": "getCheckJobResult",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/CheckJobIdParameter"
-          }
+          "Checks"
         ],
         "responses": {
           "200": {
@@ -244,142 +429,21 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {
-                    "base64EncodedBCF": {
-                      "type": "string",
-                      "description": "Base64 encoded BCF data.",
-                      "format": "byte"
-                    }
-                  }
+                  "properties": {}
                 }
               }
             }
           },
           "401": {
-            "$ref": "#/components/responses/401-Unauthorized"
+            "$ref": "#/components/responses/UnAuthorizedResponse"
           }
         },
+        "operationId": "get-api-v1-check-jobs-job_id-result",
         "security": [
           {
-            "ApiKeyAuth": []
-          }
-        ],
-        "servers": [
-          {
-            "url": "https://{environment}.solibri.com/api/v1",
-            "description": "Solibri Cloud Checks API in production environment",
-            "variables": {
-              "environment": {
-                "default": "checking-api",
-                "enum": [
-                  "checking-api",
-                  "checking-api-dev",
-                  "checking-api-staging"
-                ]
-              }
-            }
-          },
-          {
-            "url": "http://localhost:3333",
-            "description": "Solibri Cloud Checking API in local development"
+            "api-key-token": []
           }
         ]
-      }
-    }
-  },
-  "tags": [
-    {
-      "name": "Rule Checking",
-      "description": "Endpoints for executing checks"
-    }
-  ],
-  "components": {
-    "parameters": {
-      "CheckJobIdParameter": {
-        "name": "checkJobId",
-        "in": "path",
-        "description": "The Unique identifier for a Check Job that is received when calling `createCheckJob` operation",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      }
-    },
-    "securitySchemes": {
-      "ApiKeyAuth": {
-        "type": "apiKey",
-        "description": "The API Key will be provided separately.",
-        "name": "X-Api-key",
-        "in": "header"
-      }
-    },
-    "responses": {
-      "401-Unauthorized": {
-        "description": "User does not have valid credentials to access resouce.",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": [
-                "object",
-                "null"
-              ]
-            }
-          }
-        }
-      }
-    },
-    "schemas": {
-      "CsetFileBase64": {
-        "type": "string",
-        "description": "Base64 encoded CSET file",
-        "format": "byte"
-      },
-      "IfcUrl": {
-        "type": "string",
-        "format": "uri"
-      },
-      "CheckJobOutputModel": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "submissionTime": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "startTime": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time"
-          },
-          "endTime": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "date-time"
-          },
-          "lastUpdated": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "status": {
-            "enum": [
-              "ABORTED",
-              "DATARECEIVED",
-              "ERROR",
-              "PROCESSING",
-              "FINISHED",
-              "STARTED",
-              "SUBMITTED"
-            ]
-          }
-        }
       }
     }
   }

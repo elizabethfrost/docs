@@ -1,18 +1,29 @@
 {
+  "openapi": [
+    "headless-v1.yaml"
+  ],
   "$schema": "https://mintlify.com/schema.json",
-  "name": "Starter Kit",
+  "modeToggle": {
+    "default": "dark",
+    "isHidden": true
+  },
+  "name": "Solibri",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373",
+    "primary": "#046AD1",
+    "light": "#F2F9FF",
+    "dark": "#004683",
+    "background": {
+      "dark": "#090C11",
+      "light": "#090C11"
+    },
     "anchors": {
-      "from": "#0D9373",
-      "to": "#07C983"
+      "from": "#004683",
+      "to": "#046AD1"
     }
   },
   "topbarLinks": [
@@ -51,22 +62,29 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": ["introduction", "quickstart", "development"]
+      "pages": [
+        "introduction",
+        "quickstart",
+        "development"
+      ]
     },
     {
       "group": "Essentials",
-      "pages": ["essentials/markdown", "essentials/code", "essentials/images", "essentials/settings", "essentials/navigation"]
+      "pages": [
+        "essentials/markdown",
+        "essentials/code",
+        "essentials/images",
+        "essentials/settings",
+        "essentials/navigation"
+      ]
     },
     {
       "group": "API Documentation",
-      "pages": ["api-reference/introduction"]
-    },
-    {
-      "group": "Endpoint Examples",
       "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/delete"
+        "api-reference/introduction",
+        "api-reference/checks/create-check-job",
+        "api-reference/checks/get-job",
+        "api-reference/checks/get-job-result"
       ]
     }
   ],

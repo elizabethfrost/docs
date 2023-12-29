@@ -1,0 +1,301 @@
+openapi: 3.1.0
+servers:
+  - url: 'https://inside-api-beta.solibri.com/'
+    description: Beta environment (will change to checking-api.solibri.com)
+info:
+  description: Model Checking Service
+  version: '1'
+  title: Solibri Cloud Checking
+  contact:
+    email: dev-support@solibri.com
+tags:
+  - name: Checks
+components:
+  securitySchemes:
+    api-key-token:
+      type: http
+      scheme: bearer
+  schemas:
+    ResultTypeEnum:
+      title: ResultTypeEnum
+      x-stoplight:
+        id: xk8ansynf53lv
+      type: string
+      enum:
+        - BCF1_0
+        - BCF2_0
+        - BCF2_1
+        - BCF3_0
+      default: BCF2_1
+    ResultLangEnum:
+      title: ResultLangEnum
+      x-stoplight:
+        id: ub1h41le4h5td
+      type: string
+      enum:
+        - en
+        - de
+        - fi
+        - fr
+        - ja
+      default: en
+    CreateJobModel:
+      title: CreateJobModel
+      x-stoplight:
+        id: gxtfwmx6c2i43
+      type: object
+      examples:
+        - cset:
+            - base64-encode-cset-file
+          ifcUrl: 'http://example.com'
+          resultType: BCF2_1
+          resultLang: en
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: {}
+      properties:
+        csets:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            format: uri
+        ifcFiles:
+          type: object
+          format: uri
+          properties:
+            url:
+              type: string
+              format: uri
+            discipline:
+              $ref: '#/components/schemas/DisciplineEnum'
+        resultType:
+          $ref: '#/components/schemas/ResultTypeEnum'
+        resultLang:
+          $ref: '#/components/schemas/ResultLangEnum'
+        webhookUrl:
+          type: string
+          format: uri
+          description: 'This field is mandatory for now, but it will be reviewed later.'
+      required:
+        - csets
+        - ifcFiles
+    CreateJobResponseModel:
+      title: CreateJobResponseModel
+      x-stoplight:
+        id: syqtlq8v7268e
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        message:
+          type: string
+      examples:
+        - id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+          message: job created
+    JobModel:
+      title: JobModel
+      x-stoplight:
+        id: t6un8fq3e8fc5
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/JobStatusEnum'
+        resultType:
+          $ref: '#/components/schemas/ResultTypeEnum'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        dataReceivedTime:
+          type: string
+          format: date-time
+      examples:
+        - id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+          status: SUBMITTED
+          resultType: BCF2_1
+          createdAt: '2019-08-24T14:15:22Z'
+          updatedAt: '2019-08-24T14:15:22Z'
+          dataReceivedTime: '2019-08-24T14:15:22Z'
+    JobStatusEnum:
+      title: JobStatusEnum
+      x-stoplight:
+        id: o1bd86taov3al
+      type: string
+      enum:
+        - STARTED
+        - DATARECEIVED
+        - PROCESSING
+        - FINISHED
+        - ABORTED
+        - ERROR
+    DisciplineEnum:
+      title: DisciplineEnum
+      x-stoplight:
+        id: dz8iqo9j9n7kz
+      type: string
+      enum:
+        - Architecture
+        - AC
+        - BuildingServices
+        - Electrical
+        - Heat
+        - StructuralElements
+        - Ventilation
+        - Plumbing
+        - Sprinkler
+        - Inventory
+        - FacilityManagement
+        - Landscape
+        - PrefabConcrete
+        - SteelStructure
+        - SiteOperations
+        - Cooling
+        - SpecialPiping
+        - Process
+        - HVAC
+    BadRequestErrorMessage:
+      title: BadRequestErrorMessage
+      x-stoplight:
+        id: ttel8aishq7si
+      type: object
+      properties:
+        message:
+          type: string
+        errorCode:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+              errorCode:
+                type: string
+      examples:
+        - message: invalid input for create job
+          errorCode: invalid_create_job_input
+          errors:
+            - field: ifcFiles
+              message: empty ifc files input
+              errorCode: invalid_ifc_files_input
+      description: JSON error meessagge for bad requests. It contains general message and general error code as well as list of errors for missing fields with their own error message and error code. You will get all missing fields or invalid input fields at once in the errors list.
+  requestBodies:
+    CreateJobBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateJobModel'
+  responses:
+    CreateJobResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateJobResponseModel'
+          examples:
+            Example 1:
+              value:
+                id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                message: job started
+    UnAuthorizedResponse:
+      description: Example response
+      content:
+        text/plain:
+          schema:
+            properties:
+              id:
+                type: string
+      headers: {}
+    CreateJobBadRequestResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestErrorMessage'
+    GetJobResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/JobModel'
+paths:
+  /api/v1/check/jobs:
+    post:
+      summary: Create Check Job
+      description: Create a check job
+      operationId: createCheckJob
+      responses:
+        '201':
+          $ref: '#/components/responses/CreateJobResponse'
+        '400':
+          $ref: '#/components/responses/CreateJobBadRequestResponse'
+        '401':
+          $ref: '#/components/responses/UnAuthorizedResponse'
+      tags:
+        - Checks
+      security:
+        - api-key-token: []
+      requestBody:
+        $ref: '#/components/requestBodies/CreateJobBody'
+    parameters: []
+  '/api/v1/check/jobs/{jobId}':
+    parameters:
+      - schema:
+          type: string
+        name: jobId
+        in: path
+        required: true
+    get:
+      summary: Get Job
+      tags:
+        - Checks
+      responses:
+        '200':
+          $ref: '#/components/responses/GetJobResponse'
+        '401':
+          $ref: '#/components/responses/UnAuthorizedResponse'
+      operationId: get-api-v1-check-jobs-job_id
+      description: 'Get Job endpoint, can be used to see all information about a job including job status.'
+      security:
+        - api-key-token: []
+  '/api/v1/check/jobs/{jobId}/result':
+    parameters:
+      - schema:
+          type: string
+        name: jobId
+        in: path
+        required: true
+    get:
+      summary: GET job result
+      tags:
+        - Checks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                    description: pre-signed url to download the result. expires after 15 minutes. The result is BCF file.
+        '401':
+          $ref: '#/components/responses/UnAuthorizedResponse'
+      operationId: get-api-v1-check-jobs-job_id-result
+      security:
+        - api-key-token: []
